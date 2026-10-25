@@ -73,6 +73,24 @@ describe('releases API', () => {
     expect(unchecked.data.setStepCompleted.status).toBe('ONGOING');
   });
 
+  it('keeps every step when many are ticked at the same moment', async () => {
+    const release = await createRelease();
+    await Promise.all(STEPS.map((step) => setStep(release.id, step.id, true)));
+
+    const { data } = await gql(`{ release(id: "${release.id}") { status completedStepCount } }`);
+    expect(data.release).toEqual({ status: 'DONE', completedStepCount: STEPS.length });
+  });
+
+  it('returns the list one page at a time, newest first', async () => {
+    for (const name of ['Version 1', 'Version 2', 'Version 3']) await createRelease(name);
+    await db.query(`UPDATE releases SET release_date = now() + (substring(name from 9)::int || ' days')::interval`);
+
+    const { data } = await gql('{ releaseCount first: releases(limit: 2) { name } second: releases(limit: 2, offset: 2) { name } }');
+    expect(data.releaseCount).toBe(3);
+    expect(data.first.map((r: { name: string }) => r.name)).toEqual(['Version 3', 'Version 2']);
+    expect(data.second.map((r: { name: string }) => r.name)).toEqual(['Version 1']);
+  });
+
   it('updates the additional info', async () => {
     const release = await createRelease();
     const { data } = await gql(

@@ -3,19 +3,32 @@ import { Link } from 'react-router-dom';
 import { api, formatDate, type ReleaseSummary } from '../api';
 import { PanelHeader, StatusBadge } from '../components';
 
+const PAGE_SIZE = 20;
+
 export function ReleaseList() {
   const [releases, setReleases] = useState<ReleaseSummary[] | null>(null);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.listReleases().then(setReleases, (err: Error) => setError(err.message));
-  }, []);
+    api.listReleases(PAGE_SIZE, page * PAGE_SIZE).then(
+      (result) => {
+        setReleases(result.releases);
+        setTotal(result.releaseCount);
+      },
+      (err: Error) => setError(err.message),
+    );
+  }, [page]);
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   async function remove(release: ReleaseSummary) {
     if (!window.confirm(`Delete "${release.name}"? This cannot be undone.`)) return;
     try {
       await api.deleteRelease(release.id);
       setReleases((current) => current?.filter((r) => r.id !== release.id) ?? null);
+      setTotal((count) => count - 1);
     } catch (err) {
       setError((err as Error).message);
     }
@@ -70,6 +83,20 @@ export function ReleaseList() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {pageCount > 1 && (
+        <nav className="pager" aria-label="Pages">
+          <button type="button" className="link" disabled={page === 0} onClick={() => setPage(page - 1)}>
+            Previous
+          </button>
+          <span>
+            Page {page + 1} of {pageCount}
+          </span>
+          <button type="button" className="link" disabled={page + 1 >= pageCount} onClick={() => setPage(page + 1)}>
+            Next
+          </button>
+        </nav>
       )}
     </>
   );

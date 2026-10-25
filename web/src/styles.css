@@ -200,6 +200,23 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
+.pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.link:disabled {
+  color: var(--muted);
+  text-decoration: none;
+  cursor: default;
+}
+
 /* Release form */
 .release-form {
   display: flex;

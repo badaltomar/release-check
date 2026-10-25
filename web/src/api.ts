@@ -42,9 +42,11 @@ async function request<T>(query: string, variables: Record<string, unknown> = {}
 }
 
 export const api = {
-  async listReleases() {
-    const data = await request<{ releases: ReleaseSummary[] }>(`{ releases { ${SUMMARY_FIELDS} } }`);
-    return data.releases;
+  async listReleases(limit: number, offset: number) {
+    return request<{ releases: ReleaseSummary[]; releaseCount: number }>(
+      `query ($limit: Int!, $offset: Int!) { releaseCount releases(limit: $limit, offset: $offset) { ${SUMMARY_FIELDS} } }`,
+      { limit, offset },
+    );
   },
 
   async getRelease(id: string) {

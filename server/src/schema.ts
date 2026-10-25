@@ -44,7 +44,9 @@ export const typeDefs = /* GraphQL */ `
   }
 
   type Query {
-    releases: [Release!]!
+    "Newest first, one page at a time. limit is 1 to 100."
+    releases(limit: Int = 20, offset: Int = 0): [Release!]!
+    releaseCount: Int!
     release(id: ID!): Release
   }
 
@@ -120,9 +122,18 @@ export const schema = createSchema<Context>({
   typeDefs,
   resolvers: {
     Query: {
-      releases: async (_parent, _args, { db }) => {
-        const { rows } = await db.query<ReleaseRow>('SELECT * FROM releases ORDER BY release_date DESC');
+      releases: async (_parent, { limit, offset }: { limit: number; offset: number }, { db }) => {
+        if (limit < 1 || limit > 100) throw userError('limit must be between 1 and 100');
+        if (offset < 0) throw userError('offset cannot be negative');
+        const { rows } = await db.query<ReleaseRow>(
+          'SELECT * FROM releases ORDER BY release_date DESC, id LIMIT $1 OFFSET $2',
+          [limit, offset],
+        );
         return rows.map(toRelease);
+      },
+      releaseCount: async (_parent, _args, { db }) => {
+        const { rows } = await db.query<{ count: number }>('SELECT count(*)::int AS count FROM releases');
+        return rows[0]!.count;
       },
       release: async (_parent, { id }: { id: string }, { db }) => {
         const row = await findRelease(db, id);
@@ -173,18 +184,23 @@ export const schema = createSchema<Context>({
         { db },
       ) => {
         if (!isStepId(stepId)) throw userError(`Unknown step: ${stepId}`);
-        const current = await findRelease(db, releaseId);
-        if (!current) throw notFound();
+        if (!UUID.test(releaseId)) throw notFound();
 
-        const steps = new Set(current.completed_steps);
-        if (completed) steps.add(stepId);
-        else steps.delete(stepId);
-
+        // One statement that edits the array in place. Reading the steps, changing them in code and
+        // writing them back would let two quick clicks overwrite each other.
         const { rows } = await db.query<ReleaseRow>(
-          `UPDATE releases SET completed_steps = $2, updated_at = now() WHERE id = $1 RETURNING *`,
-          [releaseId, [...steps]],
+          `UPDATE releases
+              SET completed_steps = CASE
+                    WHEN $3 THEN array_append(array_remove(completed_steps, $2), $2)
+                    ELSE array_remove(completed_steps, $2)
+                  END,
+                  updated_at = now()
+            WHERE id = $1
+            RETURNING *`,
+          [releaseId, stepId, completed],
         );
-        return toRelease(rows[0]!);
+        if (!rows[0]) throw notFound();
+        return toRelease(rows[0]);
       },
 
       deleteRelease: async (_parent, { id }: { id: string }, { db }) => {

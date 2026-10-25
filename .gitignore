@@ -5,3 +5,4 @@ dist
 .claude
 loadtest/results
 VIDEO_SCRIPT.md
+loadtest/releases.json
