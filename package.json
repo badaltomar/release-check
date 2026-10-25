@@ -1,0 +1,39 @@
+{
+  "name": "release-check",
+  "version": "1.0.0",
+  "description": "Release checklist tool: a React single-page app on a GraphQL API backed by PostgreSQL",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env server/src/server.ts",
+    "dev:web": "vite",
+    "build": "vite build && tsc -p server/tsconfig.build.json && node -e \"require('node:fs').cpSync('server/src/migrations','server/dist/migrations',{recursive:true})\"",
+    "start": "node server/dist/server.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p server && tsc --noEmit -p web"
+  },
+  "dependencies": {
+    "@fastify/static": "^10.1.7",
+    "fastify": "^5.12.7",
+    "graphql": "^17.0.2",
+    "graphql-yoga": "^6.0.1",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}
