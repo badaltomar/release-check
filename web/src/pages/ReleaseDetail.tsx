@@ -111,6 +111,7 @@ export function ReleaseDetail() {
 
         <fieldset className="steps">
           <legend>Checklist</legend>
+          <p className="hint">Steps save as soon as you tick them.</p>
           {release.steps.map((step) => (
             <label key={step.id} className="step">
               <input
@@ -139,7 +140,7 @@ export function ReleaseDetail() {
         <div className="form-actions">
           {notice && <span className="notice">{notice}</span>}
           <button className="button" type="submit" disabled={saving}>
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? 'Saving...' : 'Save details'}
           </button>
         </div>
       </form>

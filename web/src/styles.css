@@ -276,6 +276,12 @@ textarea {
   margin-bottom: 10px;
 }
 
+.hint {
+  margin: -6px 0 2px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .step {
   display: flex;
   align-items: flex-start;
