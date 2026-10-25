@@ -3,5 +3,4 @@ dist
 .env
 *.log
 loadtest/results
-VIDEO_SCRIPT.md
 loadtest/releases.json
