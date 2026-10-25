@@ -2,8 +2,8 @@
 
 A release checklist tool. Create a release, tick off its steps as you go, and the status updates itself: **Planned** when nothing is done, **Ongoing** once a step is done, **Done** when every step is done.
 
-- Live app: `https://YOUR-SERVICE.onrender.com`
-- GraphQL endpoint: `https://YOUR-SERVICE.onrender.com/graphql` (opening it in a browser shows GraphiQL, an in-browser query editor)
+- Live app: `https://release-check-fnjr.onrender.com`
+- GraphQL endpoint: `https://release-check-fnjr.onrender.com/graphql` (opening it in a browser shows GraphiQL, an in-browser query editor)
 
 **Stack:** React + Vite (single-page app), Node.js + TypeScript, GraphQL Yoga on Fastify, PostgreSQL, Vitest, Docker, k6 for the load test.
 
