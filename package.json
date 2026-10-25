@@ -13,7 +13,9 @@
     "build": "vite build && tsc -p server/tsconfig.build.json && node -e \"require('node:fs').cpSync('server/src/migrations','server/dist/migrations',{recursive:true})\"",
     "start": "node server/dist/server.js",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit -p server && tsc --noEmit -p web"
+    "typecheck": "tsc --noEmit -p server && tsc --noEmit -p web",
+    "loadtest:seed": "tsx --env-file-if-exists=.env loadtest/seed.ts",
+    "loadtest": "tsx loadtest/sweep.ts"
   },
   "dependencies": {
     "@fastify/static": "^10.1.7",
