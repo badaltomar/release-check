@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: release-check
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_POOL_MAX
+        value: "10"
+      # Connection string of the hosted PostgreSQL database (Neon), entered when the blueprint is applied.
+      - key: DATABASE_URL
+        sync: false
